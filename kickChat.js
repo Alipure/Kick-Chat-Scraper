@@ -6,50 +6,41 @@ const readline = require('readline').createInterface({
     output: process.stdout
 });
 
-readline.question('Enter the kick channel URL (e.g., https://kick.com/username): ', async (channelUrl) => {
+readline.question('Enter the kick channel URL (e.g., https://kick.com/username or username): ', async (channelUrl) => {
     readline.close();
+
+    // Extract username from URL if full URL is provided
+    const username = channelUrl.includes('kick.com') ? channelUrl.split('/').pop() : channelUrl;
 
     // Initialize the WebDriver
     let driver = await new Builder().forBrowser('chrome').build();
 
     try {
         // Navigate to the kick channel
-        await driver.get(`https://kick.com/${channelUrl}`);
+        await driver.get(`https://kick.com/${username}`);
 
         // Maximize the window
         await driver.manage().window().maximize();
 
-        // Wait for the page to load and display the chat
-        await driver.wait(until.elementLocated(By.css('.chat-container')), 10000);
-
+        // Wait for 5 seconds to allow the page to load
+        await driver.sleep(5000);
 
         // Accept cookies if the prompt appears
-        // <button class="group inline-flex gap-1.5 items-center justify-center rounded font-semibold box-border relative transition-all betterhover:active:scale-[0.98] disabled:pointer-events-none select-none whitespace-nowrap [&amp;_svg]:size-[1em] outline-transparent outline-2 outline-offset-2 bg-green-500 focus-visible:outline-green-200 text-green-950 [&amp;_svg]:fill-current betterhover:hover:bg-green-600 focus-visible:bg-green-500 disabled:bg-green-800 px-3 py-2 text-lg w-full md:w-auto md:flex-1" dir="ltr" data-testid="accept-cookies">Accept all</button>
         try {
-            let acceptButton = await driver.findElement(By.css('button[data-testid="accept-cookies"]'));
+            // Wait for the cookie button to be visible and clickable
+            let acceptButton = await driver.wait(
+                until.elementLocated(By.css('button[data-testid="accept-cookies"]')),
+                5000 // Wait up to 5 seconds
+            );
+            await driver.wait(until.elementIsVisible(acceptButton), 5000);
             await acceptButton.click();
             console.log('Accepted cookies.');
         } catch (e) {
-            console.log('No cookie prompt found.');
+            console.log('No cookie prompt found or failed to click:', e.message);
         }
-
-        // Scroll to load more messages if necessary
-        let lastHeight = await driver.executeScript("return document.querySelector('.chat-container').scrollHeight");
-        while (true) {
-            await driver.executeScript("document.querySelector('.chat-container').scrollTo(0, document.querySelector('.chat-container').scrollHeight);");
-            await driver.sleep(2000); // Wait for new messages to load
-            let newHeight = await driver.executeScript("return document.querySelector('.chat-container').scrollHeight");
-            if (newHeight === lastHeight) {
-                break; // No more new messages
-            }
-            lastHeight = newHeight;
-        }
-
-        
-
 
     } catch (error) {
-        console.error('An error occurred:', error);
+        console.error('An error occurred:', error.message);
     } finally {
         // Quit the driver
         // await driver.quit();
