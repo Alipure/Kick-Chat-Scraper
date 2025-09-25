@@ -8,6 +8,7 @@ A Node.js script that extracts chat messages from a specified Kick.com channel a
 - Avoids duplicate messages using a Set data structure.
 - Saves messages to a text file in the format: `timestamp username: message`.
 - Scrolls the chat to load older messages.
+- Counts unique messages and messagers
 - Includes robust error handling and debugging output.
 
 ## Requirements
