@@ -48,12 +48,12 @@ readline.question('Enter the Kick channel URL (e.g., https://kick.com/username o
 
     // Output file
     const chatFile = '/home/single/Documents/Bots/Kick-Chat-Scraper/chat.txt';
-    const scrapedMessages = new Set(); // To avoid duplicates
+    const scrapedMessages = new Set(); // To avoid duplicate messages
+    const uniqueUsers = new Set(); // To track unique usernames
     const maxScrolls = 50; // Maximum number of scroll attempts
     const scrollDelay = 2000; // Delay between scrolls (ms)
     const maxMessages = 1000; // Maximum number of messages to collect
-    let buffer = 10000
-    
+    let buffer = 10000;
 
     try {
         // Navigate to the Kick channel
@@ -113,6 +113,7 @@ readline.question('Enter the Kick channel URL (e.g., https://kick.com/username o
                     try {
                         let usernameElement = await message.findElement(By.css('button.inline.font-bold'));
                         username = await usernameElement.getAttribute('title');
+                        uniqueUsers.add(username); // Add username to Set to track unique users
                     } catch (e) {
                         console.log('Username not found, using default:', e.message);
                     }
@@ -148,7 +149,7 @@ readline.question('Enter the Kick channel URL (e.g., https://kick.com/username o
                     // Combine timestamp, username, and message content
                     let formattedMessage = `${timestamp} ${username}: ${messageContent.trim()}`;
 
-                    // Avoid duplicates
+                    // Avoid duplicate messages
                     if (!scrapedMessages.has(formattedMessage) && messageContent.trim() !== '') {
                         scrapedMessages.add(formattedMessage);
                         fs.appendFileSync(chatFile, formattedMessage + '\n', 'utf8');
@@ -159,16 +160,21 @@ readline.question('Enter the Kick channel URL (e.g., https://kick.com/username o
                 }
             }
 
+            console.log(`==============================`);
+            console.log(`Scroll ${scrollCount + 1} complete. Total unique messages so far: ${scrapedMessages.size}`);
+            console.log(`Number of unique users: ${uniqueUsers.size}`);
+            console.log(`==============================`);
+
+            // Increase buffer time if no new messages were loaded
+            if (messages.length === previousMessageCount) {
+                buffer += 5000; // Increase buffer by 5 seconds
+                console.log('No new messages loaded, increasing buffer to', buffer, 'ms');
+            } else {
+                buffer = 10000; // Reset buffer to default
+            }
 
             console.log('Waiting for', buffer, 'ms before next scroll...');
             await driver.sleep(buffer);
-            // Check if new messages were loaded
-            // if (messages.length === previousMessageCount || scrapedMessages.size >= maxMessages) {
-
-            //     console.log('No new messages loaded or max messages reached. Stopping.');
-            //     break;
-            //     // continue;
-            // }
 
             previousMessageCount = messages.length;
 
@@ -184,6 +190,7 @@ readline.question('Enter the Kick channel URL (e.g., https://kick.com/username o
         }
 
         console.log(`Extracted ${scrapedMessages.size} unique messages to ${chatFile}`);
+        console.log(`Total unique users: ${uniqueUsers.size}`);
     } catch (error) {
         console.error('An error occurred:', error.message);
     } finally {
