@@ -52,7 +52,7 @@ readline.question('Enter the Kick channel URL (e.g., https://kick.com/username o
     const maxScrolls = 50; // Maximum number of scroll attempts
     const scrollDelay = 2000; // Delay between scrolls (ms)
     const maxMessages = 1000; // Maximum number of messages to collect
-    let buffer = 5000
+    let buffer = 10000
     
 
     try {
@@ -163,12 +163,12 @@ readline.question('Enter the Kick channel URL (e.g., https://kick.com/username o
             console.log('Waiting for', buffer, 'ms before next scroll...');
             await driver.sleep(buffer);
             // Check if new messages were loaded
-            if (messages.length === previousMessageCount || scrapedMessages.size >= maxMessages) {
+            // if (messages.length === previousMessageCount || scrapedMessages.size >= maxMessages) {
 
-                console.log('No new messages loaded or max messages reached. Stopping.');
-                break;
-                // continue;
-            }
+            //     console.log('No new messages loaded or max messages reached. Stopping.');
+            //     break;
+            //     // continue;
+            // }
 
             previousMessageCount = messages.length;
 
