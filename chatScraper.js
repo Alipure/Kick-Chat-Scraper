@@ -52,6 +52,8 @@ readline.question('Enter the Kick channel URL (e.g., https://kick.com/username o
     const maxScrolls = 50; // Maximum number of scroll attempts
     const scrollDelay = 2000; // Delay between scrolls (ms)
     const maxMessages = 1000; // Maximum number of messages to collect
+    let buffer = 5000
+    
 
     try {
         // Navigate to the Kick channel
@@ -158,8 +160,6 @@ readline.question('Enter the Kick channel URL (e.g., https://kick.com/username o
             }
 
 
-            // Wait 3 seconds before next attempt
-            let buffer = 3500
             console.log('Waiting for', buffer, 'ms before next scroll...');
             await driver.sleep(buffer);
             // Check if new messages were loaded
