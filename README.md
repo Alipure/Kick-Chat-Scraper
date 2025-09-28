@@ -34,18 +34,15 @@ A Node.js script that extracts chat messages from a specified Kick.com channel a
    cd kick-chat-scraper
 
    NOTE: MUST INSTALL SELENIUM DRIVER FROM WEBSITE TO OPEN PATH DIRECTORY
+
+
+3. **Install the driver**
 ```
-
-   3. **Install the driver**
-
-```
-
 npm install selenium-webdriver
 npm install chromedriver
-
 ```
 
-**How to run**:
+4. **How to run**:
 
 In terminal type,
 ```
